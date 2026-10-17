@@ -1,26 +1,472 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   FONT-FACE DECLARATIONS
+   Place woff2 files in /public/fonts/ before deployment:
+   - PPNeueMontreal-Regular.woff2  (from Pangram Pangram)
+   - PPNeueMontreal-Medium.woff2
+   - PPNeueMontreal-Bold.woff2
+   - GeneralSans-Regular.woff2     (from Fontshare)
+   - GeneralSans-Medium.woff2
+   JetBrains Mono loaded via Google Fonts CDN in layout.tsx
+   ========================================================================== */
+
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("/fonts/PPNeueMontreal-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("/fonts/PPNeueMontreal-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PP Neue Montreal";
+  src: url("/fonts/PPNeueMontreal-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==========================================================================
+   DESIGN TOKENS — CSS CUSTOM PROPERTIES
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --color-base: #0e0e0e;
+  --color-surface: #161616;
+  --color-border: #2a2a2a;
+  --color-text-primary: #f0ece5;
+  --color-text-secondary: #8a8680;
+  --color-accent: #e8a94d;
+  --color-accent-dim: #e8a94d26;
+
+  /* Typography */
+  --font-display: "PP Neue Montreal", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "General Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+
+  /* Fluid Type Scale */
+  --text-hero: clamp(4rem, 10vw, 12rem);
+  --text-display: clamp(2.5rem, 5vw, 6rem);
+  --text-title: clamp(1.5rem, 3vw, 3rem);
+  --text-body: clamp(0.9rem, 1.2vw, 1.1rem);
+  --text-label: clamp(0.7rem, 0.9vw, 0.85rem);
+
+  /* Easing */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Durations */
+  --dur-fast: 0.3s;
+  --dur-base: 0.6s;
+  --dur-slow: 1.2s;
+  --dur-page: 1.8s;
+
+  /* Grid */
+  --gutter: clamp(1rem, 3vw, 2rem);
+  --container: min(90vw, 1440px);
+
+  /* Spacing (8px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-48: 192px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Note: Tailwind v4 uses CSS-first configuration via @theme in the main CSS.
+   All tokens are already defined in :root above and are available to
+   Tailwind utilities. No separate tailwind.config.ts file is needed. */
+
+/* ==========================================================================
+   BASE RESET
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar — Lenis handles scroll UX */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Focus styles — accessible, amber colored */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY UTILITIES
+   ========================================================================== */
+
+.text-hero {
+  font-family: var(--font-display);
+  font-size: var(--text-hero);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.text-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+}
+
+.text-title {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.text-body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.text-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   LAYOUT UTILITIES
+   ========================================================================== */
+
+.container {
+  width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gutter);
+}
+
+/* ==========================================================================
+   COMPONENT PATTERNS
+   ========================================================================== */
+
+/* Text reveal — overflow hidden wrapper for GSAP translateY reveals */
+.reveal-wrapper {
+  overflow: hidden;
+  display: block;
+}
+
+/* Section base */
+.section {
+  padding-block: var(--space-24);
+  position: relative;
+}
+
+/* Pill/tag */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.06em;
+}
+
+/* Divider line */
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-border);
+  transform-origin: left center;
+}
+
+/* ==========================================================================
+   GRAIN SVG FILTER (referenced by Grain.tsx)
+   ========================================================================== */
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+/* ==========================================================================
+   CURSOR
+   ========================================================================== */
+
+.cursor-dot {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-text-primary);
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+.cursor-ring {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 236, 229, 0.5);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  transition: width var(--dur-fast) var(--ease-expo),
+              height var(--dur-fast) var(--ease-expo),
+              border-color var(--dur-fast) var(--ease-soft);
+}
+
+.cursor-ring--expanded {
+  width: 80px;
+  height: 80px;
+  border-color: var(--color-accent);
+}
+
+.cursor-label {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10001;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  transform: translate(20px, -50%);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-soft);
+}
+
+.cursor-label--visible {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   NAV
+   ========================================================================== */
+
+.nav-link {
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 1.2em;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.nav-link__inner,
+.nav-link__hover {
+  display: block;
+  transition: transform var(--dur-fast) var(--ease-soft);
+}
+
+.nav-link__hover {
+  color: var(--color-accent);
+}
+
+.nav-link:hover .nav-link__inner,
+.nav-link:hover .nav-link__hover {
+  transform: translateY(-100%);
+}
+
+/* ==========================================================================
+   MARQUEE
+   ========================================================================== */
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 30s linear infinite;
+}
+
+.marquee-track--paused {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ==========================================================================
+   PRELOADER
+   ========================================================================== */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-base);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+}
+
+.preloader__counter {
+  font-family: var(--font-mono);
+  font-size: clamp(4rem, 12vw, 10rem);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transition: opacity var(--dur-fast) var(--ease-soft);
+}
+
+.preloader__audio {
+  display: flex;
+  gap: var(--space-8);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.08em;
+}
+
+.preloader__audio-btn {
+  color: var(--color-text-secondary);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  transition: color var(--dur-fast) var(--ease-soft),
+              border-color var(--dur-fast) var(--ease-soft);
+}
+
+.preloader__audio-btn:hover,
+.preloader__audio-btn--active {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
 }
